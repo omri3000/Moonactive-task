@@ -5,7 +5,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import axios from "axios";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     "& > *": {
       margin: theme.spacing(1)
@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
 export default function EditPopup(props) {
   const classes = useStyles();
   let { editRow } = props;
+  const [selected, setSelected] = React.useState(editRow.Type);
 
   // on click update the row in the db and close the pop up
   const handleSave = () => {
@@ -25,12 +26,17 @@ export default function EditPopup(props) {
         Type: editRow.Type,
         UserGroupName: editRow.UserGroupName
       })
-      .then((response) => {
+      .then(response => {
         props.closePopup();
       })
-      .catch((error) => {
+      .catch(error => {
         console.log(error);
       });
+  };
+
+  const handleChange = e => {
+    editRow.Type = e.target.value;
+    setSelected(e.target.value);
   };
   return (
     <div className="popup">
@@ -39,14 +45,14 @@ export default function EditPopup(props) {
         <form className={classes.root} noValidate autoComplete="off">
           <Input
             defaultValue={editRow.PromotionName}
-            onChange={(e) => (editRow.PromotionName = e.target.value)}
+            onChange={e => (editRow.PromotionName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={editRow.Type}
-            onChange={(e) => (editRow.Type = e.target.value)}
+            value={selected}
+            onChange={e => handleChange(e)}
           >
             <MenuItem value={"Basic"}>Basic</MenuItem>
             <MenuItem value={"Common"}>Common</MenuItem>
@@ -67,7 +73,7 @@ export default function EditPopup(props) {
         /> */}
           <Input
             defaultValue={editRow.UserGroupName}
-            onChange={(e) => (editRow.UserGroupName = e.target.value)}
+            onChange={e => (editRow.UserGroupName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
         </form>

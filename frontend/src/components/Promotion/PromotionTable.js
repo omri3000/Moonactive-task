@@ -19,6 +19,7 @@ import EnhancedTableHead from "./EnhancedTableHead";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import EditPopup from "./EditPopup";
 
+// useStyle from material-UI
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%"
@@ -45,17 +46,24 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EnhancedTable() {
   const classes = useStyles();
+  // checkbox state
   const [selected, setSelected] = React.useState([]);
+  // rows in table state
   const [rows, setRows] = React.useState([]);
+  // row object to edit state
   const [editableRow, setEditableRow] = React.useState({});
+  // pagination number state
   const [page, setPage] = React.useState(0);
+  // check if has more rows to load below
   const [hasMoreBelow, setHasMoreBelow] = React.useState(false);
-  const [showPopup, setShowPopup] = React.useState(false);
+  // if scroll up
   const [hasMoreAbove, setHasMoreAbove] = React.useState(false);
+  // edit popup state show/hide
+  const [showPopup, setShowPopup] = React.useState(false);
+  // scroll position top/down
   const [scrollPosition, setSrollPosition] = React.useState(0);
 
-  let updatedData = true;
-
+  // handle scroll check if the side of the scrolling is up or down and set the hasMoreAbove
   const handleScroll = () => {
     const position = window.pageYOffset;
     setSrollPosition((prevPosition) => {
@@ -68,6 +76,7 @@ export default function EnhancedTable() {
     });
   };
 
+  // scroll listener
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
@@ -76,47 +85,48 @@ export default function EnhancedTable() {
     };
   }, []);
 
-  const observer = useRef();
-  const observer2 = useRef();
+  const observerLastRow = useRef();
+  const observerFirstRow = useRef();
+  // callback run when last row is visible
   const lastRow = useCallback(
     (node) => {
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
+      if (observerLastRow.current) observerLastRow.current.disconnect();
+      observerLastRow.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMoreBelow) {
-          updatedData = false;
           setPage((prevPage) => {
             if (prevPage == 0) {
-              return prevPage + 4;
+              return prevPage + 3;
             } else {
               return prevPage + 1;
             }
           });
         }
       });
-      if (node) observer.current.observe(node);
+      if (node) observerLastRow.current.observe(node);
     },
     [hasMoreBelow]
   );
 
+  // callback run when first row is visible
   const firstRow = useCallback((node) => {
-    if (observer2.current) observer2.current.disconnect();
-    observer2.current = new IntersectionObserver((entries) => {
+    if (observerFirstRow.current) observerFirstRow.current.disconnect();
+    observerFirstRow.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        updatedData = false;
         setPage((prevPage) => {
-          if (prevPage - 4 < 0) {
+          if (prevPage - 3 < 0) {
             return 0;
           }
-          return prevPage - 4;
+          return prevPage - 3;
         });
       }
     });
-    if (node) observer2.current.observe(node);
+    if (node) observerFirstRow.current.observe(node);
   }, []);
 
   const handleSelected = () => {
     setSelected([]);
   };
+  //set all to selected or unselected
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n._id);
@@ -125,6 +135,7 @@ export default function EnhancedTable() {
     }
     setSelected([]);
   };
+  // selected on row
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -144,17 +155,20 @@ export default function EnhancedTable() {
 
     setSelected(newSelected);
   };
+  // open action menu
   const handleMenu = (event, row) => {
     event.stopPropagation();
     rows.map((row) => (row.menu = false));
     row.menu = true;
     setSelected([]);
   };
+  // open action menu
   const closeHandle = (event, row) => {
     event.stopPropagation();
     row.menu = false;
     setSelected([]);
   };
+  // on click delete on row delete the row
   const deleteHandle = (event, row) => {
     event.stopPropagation();
     axios
@@ -167,11 +181,13 @@ export default function EnhancedTable() {
         console.log(error);
       });
   };
+  // on click edit open popup with form to edit
   const editHandle = (event, row) => {
     event.stopPropagation();
     setEditableRow(row);
     togglePopup(row);
   };
+  // on click duplicate create another row in the database and show on table
   const copyHandle = (event, row) => {
     event.stopPropagation();
     const index = rows.map((row) => row._id).indexOf(row._id);
@@ -185,6 +201,7 @@ export default function EnhancedTable() {
         console.log(error);
       });
   };
+  // show/hide popup
   const togglePopup = (row) => {
     if (row) {
       row.menu = false;
@@ -192,10 +209,11 @@ export default function EnhancedTable() {
     setShowPopup((p) => !p);
   };
 
+  // any change on the page call for more rows from the DB max row on DOM 90
   useEffect(() => {
-    let numberOfRows = 25;
+    let numberOfRows = 30;
     if (page == 0) {
-      numberOfRows = 100;
+      numberOfRows = 90;
     }
     let url = `http://localhost:4000/getRows/${page}/${numberOfRows}`;
     axios
@@ -219,7 +237,6 @@ export default function EnhancedTable() {
             return newRows;
           });
         }
-        updatedData = true;
       })
       .catch((error) => {
         console.log(error);
@@ -266,18 +283,13 @@ export default function EnhancedTable() {
                     key={row._id}
                     selected={isItemSelected}
                     ref={
-                      rows.length - 15 === index + 1 && updatedData
+                      rows.length - 10 === index + 1
                         ? lastRow
-                        : index == 20 && page != 0 && updatedData
+                        : index == 10 && page != 0
                         ? firstRow
                         : undefined
                     }
                   >
-                    {/* {rows.length - 15 === index + 1 && updatedData
-                      ? console.log("rowPromotionName", row.PromotionName)
-                      : index == 15 && page != 0 && updatedData
-                      ? console.log("rowPromotionName", row.PromotionName)
-                      : undefined} */}
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isItemSelected}

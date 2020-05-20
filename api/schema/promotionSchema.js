@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+// Created dynamically Schema can be all types and can expand
+// PromotionName,Type,StartDate,EndDate,UserGroupName
 export const PromotionSchema = new Schema(
   {
     PromotionName: {

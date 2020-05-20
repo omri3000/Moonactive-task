@@ -15,22 +15,17 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditPopup(props) {
   const classes = useStyles();
-  let row = props.editRow;
-  const [type, setType] = React.useState(row.Type);
+  let { editRow } = props;
 
-  const handleChange = (event) => {
-    row.Type = event.target.value;
-    setType(event.target.value);
-  };
+  // on click update the row in the db and close the pop up
   const handleSave = () => {
     axios
-      .put(`http://localhost:4000/row/${row._id}`, {
-        PromotionName: row.PromotionName,
-        Type: row.Type,
-        UserGroupName: row.UserGroupName
+      .put(`http://localhost:4000/row/${editRow._id}`, {
+        PromotionName: editRow.PromotionName,
+        Type: editRow.Type,
+        UserGroupName: editRow.UserGroupName
       })
       .then((response) => {
-        console.log("row", response.data);
         props.closePopup();
       })
       .catch((error) => {
@@ -42,27 +37,37 @@ export default function EditPopup(props) {
       <div className="popup_inner">
         <h1>Edit</h1>
         <form className={classes.root} noValidate autoComplete="off">
-          {/* <InputLabel id="demo-simple-select-label">Name</InputLabel> */}
           <Input
-            defaultValue={row.PromotionName}
-            onChange={(e) => (row.PromotionName = e.target.value)}
+            defaultValue={editRow.PromotionName}
+            onChange={(e) => (editRow.PromotionName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
-          {/* <InputLabel id="demo-simple-select-label">Type</InputLabel> */}
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={type}
-            onChange={handleChange}
+            value={editRow.Type}
+            onChange={(e) => (editRow.Type = e.target.value)}
           >
             <MenuItem value={"Basic"}>Basic</MenuItem>
             <MenuItem value={"Common"}>Common</MenuItem>
             <MenuItem value={"Epic"}>Epic</MenuItem>
           </Select>
-          {/* <InputLabel id="demo-simple-select-label">Group Name</InputLabel> */}
+          {/* <KeyboardDatePicker
+          disableToolbar
+          variant="inline"
+          format="MM/dd/yyyy"
+          margin="normal"
+          id="date-picker-inline"
+          label="Date picker inline"
+          value={selectedDate}
+          onChange={handleDateChange}
+          KeyboardButtonProps={{
+            'aria-label': 'change date',
+          }}
+        /> */}
           <Input
-            defaultValue={row.UserGroupName}
-            onChange={(e) => (row.UserGroupName = e.target.value)}
+            defaultValue={editRow.UserGroupName}
+            onChange={(e) => (editRow.UserGroupName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
         </form>

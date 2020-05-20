@@ -13,8 +13,9 @@ const useStyles = makeStyles((theme) => ({
 export default function CreateButton(props) {
   const classes = useStyles();
 
+  // create row on the DB can insert difference number set to 10,000
   const createRows = () => {
-    const numberOfRows = 1000;
+    const numberOfRows = 10000;
     axios
       .get(`http://localhost:4000/newRows/${numberOfRows}`)
       .then((res) => {

@@ -4,6 +4,7 @@ import { PromotionSchema } from "../schema/promotionSchema";
 
 const Rows = mongoose.model("promotion", PromotionSchema);
 
+//read json file with example of data save them as the number the user request or 1 default
 export const addNewRows = (req, res) => {
   fs.readFile("./json/rows.json", "utf8", function (err, data) {
     if (err) throw err;
@@ -22,6 +23,7 @@ export const addNewRows = (req, res) => {
   });
 };
 
+// delete Row by Id
 export const deleteRowById = (req, res) => {
   Rows.deleteMany({ _id: req.params.id }, (err, Row) => {
     if (err) {
@@ -31,6 +33,7 @@ export const deleteRowById = (req, res) => {
   });
 };
 
+// delete multiple rows
 export const deleteByArray = (req, res) => {
   Rows.deleteMany({ _id: req.body.id }, (err, Row) => {
     if (err) {
@@ -40,6 +43,7 @@ export const deleteByArray = (req, res) => {
   });
 };
 
+// get row by id
 export const getRowById = (req, res) => {
   Rows.findById(req.params.id, (err, Row) => {
     if (err) {
@@ -49,6 +53,7 @@ export const getRowById = (req, res) => {
   });
 };
 
+// update row by id
 export const updateRowById = (req, res) => {
   Rows.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }, (err, Row) => {
     if (err) {
@@ -59,6 +64,7 @@ export const updateRowById = (req, res) => {
   });
 };
 
+// duplicate row by id
 export const duplicateRow = (req, res) => {
   Rows.findById(req.params.id).exec(function (err, doc) {
     doc._id = mongoose.Types.ObjectId();
@@ -69,6 +75,7 @@ export const duplicateRow = (req, res) => {
   });
 };
 
+// get all row in the db table
 export const getAllRows = (req, res) => {
   var query = Rows.find({}).stream();
   let newCount = 0;
@@ -88,6 +95,7 @@ export const getAllRows = (req, res) => {
     });
 };
 
+// pagination get page number and the number of rows
 export const getNumOfRows = (req, res) => {
   const pageNumber = req.params.page;
   let perPage = req.params.rows ? parseInt(req.params.rows) : 15,
@@ -104,6 +112,7 @@ export const getNumOfRows = (req, res) => {
     });
 };
 
+//remove all rows from the db table
 export const removeAllRows = (req, res) => {
   Rows.deleteMany({}, (err, Rows) => {
     if (err) {

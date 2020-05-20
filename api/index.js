@@ -7,7 +7,9 @@ import cors from "cors";
 const app = express();
 const PORT = 4000;
 
+// Allow cros
 app.use(cors());
+
 //mongo connection
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/promotionDB", {

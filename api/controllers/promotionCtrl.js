@@ -10,6 +10,7 @@ export const addNewRows = (req, res) => {
     var json = JSON.parse(data);
     const insertLength = req.params.numberOfRows ? req.params.numberOfRows : 1;
     for (let i = 0; i < insertLength; i++) {
+      json.PromotionName = "Sale" + (i + 1);
       let newRows = new Rows(json);
       newRows.save((err, Rows) => {
         if (err) {
@@ -23,6 +24,24 @@ export const addNewRows = (req, res) => {
 
 export const deleteRowById = (req, res) => {
   Rows.deleteMany({ _id: req.params.id }, (err, Row) => {
+    if (err) {
+      res.send(err);
+    }
+    res.json(Row);
+  });
+};
+
+export const deleteByArray = (req, res) => {
+  Rows.deleteMany({ _id: req.body.id }, (err, Row) => {
+    if (err) {
+      res.send(err);
+    }
+    res.json(Row);
+  });
+};
+
+export const getRowById = (req, res) => {
+  Rows.findById(req.params.id, (err, Row) => {
     if (err) {
       res.send(err);
     }
@@ -44,7 +63,9 @@ export const duplicateRow = (req, res) => {
   Rows.findById(req.params.id).exec(function (err, doc) {
     doc._id = mongoose.Types.ObjectId();
     doc.isNew = true;
-    doc.save(callback);
+    doc.save(() => {
+      res.json(doc);
+    });
   });
 };
 
@@ -69,7 +90,7 @@ export const getAllRows = (req, res) => {
 
 export const getNumOfRows = (req, res) => {
   const pageNumber = req.params.page;
-  let perPage = 35,
+  let perPage = req.params.rows ? parseInt(req.params.rows) : 15,
     page = Math.max(0, pageNumber);
 
   Rows.find()

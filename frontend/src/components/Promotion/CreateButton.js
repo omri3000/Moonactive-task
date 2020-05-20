@@ -14,7 +14,7 @@ export default function CreateButton(props) {
   const classes = useStyles();
 
   const createRows = () => {
-    const numberOfRows = 100;
+    const numberOfRows = 1000;
     axios
       .get(`http://localhost:4000/newRows/${numberOfRows}`)
       .then((res) => {

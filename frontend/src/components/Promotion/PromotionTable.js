@@ -54,11 +54,11 @@ export default function EnhancedTable() {
   const [hasMoreAbove, setHasMoreAbove] = React.useState(false);
   const [scrollPosition, setSrollPosition] = React.useState(0);
 
+  let updatedData = true;
+
   const handleScroll = () => {
     const position = window.pageYOffset;
     setSrollPosition((prevPosition) => {
-      // console.log("prevPosition < position ", prevPosition < position);
-      // console.log(`${prevPosition} < ${position}`);
       if (prevPosition < position) {
         setHasMoreAbove(false);
       } else {
@@ -83,9 +83,10 @@ export default function EnhancedTable() {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMoreBelow) {
+          updatedData = false;
           setPage((prevPage) => {
             if (prevPage == 0) {
-              return prevPage + 2;
+              return prevPage + 4;
             } else {
               return prevPage + 1;
             }
@@ -101,12 +102,12 @@ export default function EnhancedTable() {
     if (observer2.current) observer2.current.disconnect();
     observer2.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
+        updatedData = false;
         setPage((prevPage) => {
-          if (prevPage == 2) {
-            return prevPage - 2;
-          } else {
-            return prevPage - 1;
+          if (prevPage - 4 < 0) {
+            return 0;
           }
+          return prevPage - 4;
         });
       }
     });
@@ -184,7 +185,6 @@ export default function EnhancedTable() {
         console.log(error);
       });
   };
-
   const togglePopup = (row) => {
     if (row) {
       row.menu = false;
@@ -193,35 +193,33 @@ export default function EnhancedTable() {
   };
 
   useEffect(() => {
-    let numberOfRows = 15;
-    if (page == 0 && !hasMoreAbove) {
-      numberOfRows = 30;
+    let numberOfRows = 25;
+    if (page == 0) {
+      numberOfRows = 100;
     }
     let url = `http://localhost:4000/getRows/${page}/${numberOfRows}`;
-    console.log(`http://localhost:4000/getRows/${page}/${numberOfRows}`);
     axios
       .get(url)
       .then((response) => {
-        console.log("response.data.length", response.data.length);
-        console.log("page", page);
-        console.log("scrollPosition", scrollPosition);
-        console.log("hasMoreAbove", hasMoreAbove);
         setHasMoreBelow(response.data.length > 0);
+        if (page < 0) return;
         if (hasMoreAbove) {
           setRows((prevRows) => {
-            // return [...response.data, ...prevRows.splice(0, 15)];
-            return response.data.concat(prevRows.splice(1, 15));
-            // return prevRows.splice(14, 30) + response.data;
-            // console.log("response.data:", response.data);
-            return [];
+            let newRows;
+            if (page == 0) {
+              newRows = response.data;
+            } else {
+              newRows = response.data.concat(prevRows.slice(0, prevRows.length - 15));
+            }
+            return newRows;
           });
         } else {
           setRows((prevRows) => {
-            // return [...prevRows, ...response.data];
-            return prevRows.splice(14, 30).concat(response.data);
-            // return prevRows.splice(14, 30) + response.data;
+            let newRows = prevRows.slice(numberOfRows, prevRows.length).concat(response.data);
+            return newRows;
           });
         }
+        updatedData = true;
       })
       .catch((error) => {
         console.log(error);
@@ -268,13 +266,18 @@ export default function EnhancedTable() {
                     key={row._id}
                     selected={isItemSelected}
                     ref={
-                      rows.length === index + 1
+                      rows.length - 15 === index + 1 && updatedData
                         ? lastRow
-                        : index == 0 && page != 0
+                        : index == 20 && page != 0 && updatedData
                         ? firstRow
                         : undefined
                     }
                   >
+                    {/* {rows.length - 15 === index + 1 && updatedData
+                      ? console.log("rowPromotionName", row.PromotionName)
+                      : index == 15 && page != 0 && updatedData
+                      ? console.log("rowPromotionName", row.PromotionName)
+                      : undefined} */}
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isItemSelected}

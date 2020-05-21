@@ -6,16 +6,16 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/picker
 
 export default function DatePicker(props) {
   // The first commit of Material-UI
-  let { editRow } = props;
-  const [selectedStartDate, setSelectedStartDate] = React.useState(new Date(editRow.StartDate));
-  const [selectedEndDate, setSelectedEndDate] = React.useState(new Date(editRow.EndDate));
+  let { startDate, endDate, handleDateStartChange, handleDateEndChange } = props;
+  //   const [selectedStartDate, setSelectedStartDate] = React.useState(new Date(editRow.StartDate));
+  //   const [selectedEndDate, setSelectedEndDate] = React.useState(new Date(editRow.EndDate));
 
-  const handleDateStartChange = (date) => {
-    setSelectedStartDate(date);
-  };
-  const handleDateEndChange = (date) => {
-    setSelectedEndDate(date);
-  };
+  //   const handleDateStartChange = (date) => {
+  //     setSelectedStartDate(date);
+  //   };
+  //   const handleDateEndChange = (date) => {
+  //     setSelectedEndDate(date);
+  //   };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -27,7 +27,7 @@ export default function DatePicker(props) {
           margin="normal"
           id="date-picker-inline"
           label="Date picker inline"
-          value={selectedStartDate}
+          value={startDate}
           onChange={handleDateStartChange}
           KeyboardButtonProps={{
             "aria-label": "change date"
@@ -38,7 +38,7 @@ export default function DatePicker(props) {
           id="date-picker-dialog"
           label="Date picker dialog"
           format="dd/MM/yyyy"
-          value={selectedEndDate}
+          value={endDate}
           onChange={handleDateEndChange}
           KeyboardButtonProps={{
             "aria-label": "change date"

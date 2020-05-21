@@ -14,7 +14,8 @@ app.use(cors());
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/promotionDB", {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
 });
 
 // parse application/x-www-form-urlencoded

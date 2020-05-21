@@ -13,19 +13,31 @@ import axios from "axios";
 export default function EditDialog(props) {
   const { open, editRow, closePopup } = props;
   const [selected, setSelected] = React.useState(editRow.Type);
+  const [selectedStartDate, setSelectedStartDate] = React.useState(new Date(editRow.StartDate));
+  const [selectedEndDate, setSelectedEndDate] = React.useState(new Date(editRow.EndDate));
+
+  const handleDateStartChange = (date) => {
+    setSelectedStartDate(date);
+  };
+  const handleDateEndChange = (date) => {
+    setSelectedEndDate(date);
+  };
 
   let promotionName = editRow.PromotionName;
-  let userGroupName = editRow.userGroupName;
-  let type = editRow.Type;
+  let userGroupName = editRow.UserGroupName;
 
   const handleSave = () => {
     editRow.PromotionName = promotionName;
+    editRow.StartDate = selectedStartDate;
+    editRow.EndDate = selectedEndDate;
     editRow.UserGroupName = userGroupName;
-    editRow.Type = type;
+    editRow.Type = selected;
     axios
       .put(`http://localhost:4000/row/${editRow._id}`, {
         PromotionName: editRow.PromotionName,
         Type: editRow.Type,
+        StartDate: editRow.StartDate,
+        EndDate: editRow.EndDate,
         UserGroupName: editRow.UserGroupName
       })
       .then((response) => {
@@ -42,7 +54,6 @@ export default function EditDialog(props) {
   };
 
   const handleChange = (e) => {
-    type = e.target.value;
     setSelected(e.target.value);
   };
   return (
@@ -51,7 +62,7 @@ export default function EditDialog(props) {
         <DialogTitle id="form-dialog-title">Edit Row</DialogTitle>
         <DialogContent>
           <Input
-            defaultValue={editRow.PromotionName}
+            defaultValue={promotionName}
             fullWidth
             autoFocus
             onChange={(e) => (promotionName = e.target.value)}
@@ -68,9 +79,14 @@ export default function EditDialog(props) {
             <MenuItem value={"Common"}>Common</MenuItem>
             <MenuItem value={"Epic"}>Epic</MenuItem>
           </Select>
-          <DatePicker editRow={editRow} />
+          <DatePicker
+            startDate={selectedStartDate}
+            endDate={selectedEndDate}
+            handleDateStartChange={handleDateStartChange}
+            handleDateEndChange={handleDateEndChange}
+          />
           <Input
-            defaultValue={editRow.UserGroupName}
+            defaultValue={userGroupName}
             fullWidth
             autoFocus
             onChange={(e) => (userGroupName = e.target.value)}

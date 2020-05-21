@@ -1,26 +1,27 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import Input from "@material-ui/core/Input";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import DatePicker from "./DatePicker";
 import axios from "axios";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& > *": {
-      margin: theme.spacing(1)
-    }
-  }
-}));
-
-export default function EditPopup(props) {
-  const classes = useStyles();
-  let { editRow } = props;
+export default function EditDialog(props) {
+  const { open, editRow, closePopup } = props;
   const [selected, setSelected] = React.useState(editRow.Type);
 
-  // on click update the row in the db and close the pop up
+  let promotionName = editRow.PromotionName;
+  let userGroupName = editRow.userGroupName;
+  let type = editRow.Type;
+
   const handleSave = () => {
+    editRow.PromotionName = promotionName;
+    editRow.UserGroupName = userGroupName;
+    editRow.Type = type;
     axios
       .put(`http://localhost:4000/row/${editRow._id}`, {
         PromotionName: editRow.PromotionName,
@@ -35,23 +36,31 @@ export default function EditPopup(props) {
       });
   };
 
+  const handleClose = () => {
+    editRow.menu = false;
+    closePopup();
+  };
+
   const handleChange = (e) => {
-    editRow.Type = e.target.value;
+    type = e.target.value;
     setSelected(e.target.value);
   };
   return (
-    <div className="popup">
-      <div className="popup_inner">
-        <h1>Edit</h1>
-        <form className={classes.root} noValidate autoComplete="off">
+    <div>
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Edit Row</DialogTitle>
+        <DialogContent>
           <Input
             defaultValue={editRow.PromotionName}
-            onChange={(e) => (editRow.PromotionName = e.target.value)}
+            fullWidth
+            autoFocus
+            onChange={(e) => (promotionName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
+            fullWidth
             value={selected}
             onChange={(e) => handleChange(e)}
           >
@@ -62,15 +71,21 @@ export default function EditPopup(props) {
           <DatePicker editRow={editRow} />
           <Input
             defaultValue={editRow.UserGroupName}
-            onChange={(e) => (editRow.UserGroupName = e.target.value)}
+            fullWidth
+            autoFocus
+            onChange={(e) => (userGroupName = e.target.value)}
             inputProps={{ "aria-label": "description" }}
           />
-        </form>
-        <div className="form-buttons">
-          <button onClick={props.closePopup}>cancel</button>
-          <button onClick={handleSave}>save</button>
-        </div>
-      </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

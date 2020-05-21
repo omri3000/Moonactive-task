@@ -83,6 +83,9 @@ html {
   padding: 10px 0;
 }
 
+.stop-scrolling {
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

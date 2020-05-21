@@ -4,7 +4,7 @@
 
    git clone https://github.com/omri3000/Moonactive-task.git
 
-2. Install mongoDB to local mechine
+2. Install mongoDB to local machine
 
    https://docs.mongodb.com/manual/administration/install-community/
 
@@ -13,7 +13,7 @@
    cd ./api/
    npm i
 
-4. Start nodeJS server it will run on port 4000
+4. Start nodeJS server. It will run on port 4000
 
    npm start
 
@@ -24,7 +24,7 @@
    cd ./frontend/
    npm i
 
-6. Start react server it will run on port 3000
+6. Start react server. It will run on port 3000
 
    npm start
 

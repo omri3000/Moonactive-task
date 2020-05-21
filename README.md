@@ -29,3 +29,8 @@
    npm start
 
 \*\* The app will be opened automatically on default browser
+
+
+### if you have any issue contact me:
+### Email : omri3000@gmail.com
+### Phone : 0525258854

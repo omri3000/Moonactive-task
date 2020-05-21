@@ -63,8 +63,6 @@ export default function EnhancedTable() {
   const [hasMoreBelow, setHasMoreBelow] = React.useState(false);
   // when loading add text loading
   const [loading, setLoading] = React.useState(false);
-  // if scroll up
-  const [hasMoreAbove, setHasMoreAbove] = React.useState(false);
   // edit popup state show/hide
   const [open, setOpen] = React.useState(false);
 

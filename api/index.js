@@ -7,7 +7,7 @@ import cors from "cors";
 const app = express();
 const PORT = 4000;
 
-// Allow cros
+// Allow cors
 app.use(cors());
 
 //mongo connection

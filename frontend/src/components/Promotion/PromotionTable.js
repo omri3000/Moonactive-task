@@ -58,44 +58,15 @@ export default function EnhancedTable() {
   const [editableRow, setEditableRow] = React.useState({});
   // pagination number state
   const [page, setPage] = React.useState(0);
+  const [prevPage, setPrevPage] = React.useState(0);
   // check if has more rows to load below
   const [hasMoreBelow, setHasMoreBelow] = React.useState(false);
-
+  // when loading add text loading
   const [loading, setLoading] = React.useState(false);
   // if scroll up
   const [hasMoreAbove, setHasMoreAbove] = React.useState(false);
   // edit popup state show/hide
-  // const [showPopup, setShowPopup] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  // scroll position top/down
-  // eslint-disable-next-line
-  const [scrollPosition, setSrollPosition] = React.useState(0);
-
-  // handle scroll check if the side of the scrolling is up or down and set the hasMoreAbove
-  const handleScroll = () => {
-    const position = window.pageYOffset;
-    setSrollPosition((prevPosition) => {
-      console.log(prevPosition);
-      console.log(position);
-      if (prevPosition < position) {
-        setHasMoreAbove(false);
-      } else {
-        console.log(position);
-        setHasMoreAbove(true);
-      }
-      return position;
-    });
-  };
-
-  // scroll listener
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-    // eslint-disable-next-line
-  }, []);
 
   const observerLastRow = useRef();
   const observerFirstRow = useRef();
@@ -141,8 +112,8 @@ export default function EnhancedTable() {
   //set all to selected or unselected
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n._id);
-      setSelected(newSelecteds);
+      const newSelected = rows.map((n) => n._id);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
@@ -232,7 +203,7 @@ export default function EnhancedTable() {
       .then((response) => {
         setHasMoreBelow(response.data.length > 0);
         if (page < 0) return;
-        if (hasMoreAbove) {
+        if (page < prevPage) {
           setRows((prevRows) => {
             let newRows;
             if (Number(page) === 0) {
@@ -248,6 +219,7 @@ export default function EnhancedTable() {
             return newRows;
           });
         }
+        setPrevPage(page);
         setLoading(false);
       })
       .catch((error) => {
@@ -260,9 +232,6 @@ export default function EnhancedTable() {
 
   return (
     <div className={classes.root}>
-      {/* {showPopup ? (
-        <EditPopup text="Close Me" editRow={editableRow} closePopup={togglePopup} />
-      ) : null} */}
       {open ? <EditDialog open={open} editRow={editableRow} closePopup={closePopup} /> : ""}
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
@@ -284,7 +253,7 @@ export default function EnhancedTable() {
               onSelectAllClick={handleSelectAllClick}
               rowCount={rows.length}
             />
-            <TableBody>
+            <TableBody id="tableID">
               {rows.map((row, index) => {
                 const isItemSelected = isSelected(row._id);
                 const labelId = `enhanced-table-checkbox-${index}`;

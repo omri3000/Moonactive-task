@@ -12,13 +12,18 @@ import axios from "axios";
 
 export default function EditDialog(props) {
   const { open, editRow, closePopup } = props;
+  // selected on select element
   const [selected, setSelected] = React.useState(editRow.Type);
+  // start date picker
   const [selectedStartDate, setSelectedStartDate] = React.useState(new Date(editRow.StartDate));
+  // end date picker
   const [selectedEndDate, setSelectedEndDate] = React.useState(new Date(editRow.EndDate));
 
+  // on start date change
   const handleDateStartChange = (date) => {
     setSelectedStartDate(date);
   };
+  // on end date change
   const handleDateEndChange = (date) => {
     setSelectedEndDate(date);
   };
@@ -26,6 +31,7 @@ export default function EditDialog(props) {
   let promotionName = editRow.PromotionName;
   let userGroupName = editRow.UserGroupName;
 
+  // on save button save edit row to the DB and update state
   const handleSave = () => {
     editRow.PromotionName = promotionName;
     editRow.StartDate = selectedStartDate;
@@ -48,11 +54,13 @@ export default function EditDialog(props) {
       });
   };
 
+  // on close hidePopUp
   const handleClose = () => {
     editRow.menu = false;
     closePopup();
   };
 
+  // on select change update state
   const handleChange = (e) => {
     setSelected(e.target.value);
   };

@@ -5,17 +5,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
 
 export default function DatePicker(props) {
-  // The first commit of Material-UI
   let { startDate, endDate, handleDateStartChange, handleDateEndChange } = props;
-  //   const [selectedStartDate, setSelectedStartDate] = React.useState(new Date(editRow.StartDate));
-  //   const [selectedEndDate, setSelectedEndDate] = React.useState(new Date(editRow.EndDate));
-
-  //   const handleDateStartChange = (date) => {
-  //     setSelectedStartDate(date);
-  //   };
-  //   const handleDateEndChange = (date) => {
-  //     setSelectedEndDate(date);
-  //   };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>

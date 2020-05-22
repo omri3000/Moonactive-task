@@ -23,17 +23,17 @@ import EditDialog from "./editDialog";
 // makeStyles from material-UI
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%"
+    width: "100%",
   },
   paper: {
     width: "100%",
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
   },
   table: {
-    minWidth: 750
+    minWidth: 750,
   },
   container: {
-    maxHeight: "70vh"
+    maxHeight: "70vh",
   },
   visuallyHidden: {
     border: 0,
@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
     padding: 0,
     position: "absolute",
     top: 20,
-    width: 1
-  }
+    width: 1,
+  },
 }));
 
 export default function EnhancedTable() {
@@ -66,6 +66,8 @@ export default function EnhancedTable() {
   // edit popup state show/hide
   const [open, setOpen] = React.useState(false);
 
+  const [first, setFirst] = React.useState(true);
+
   const observerLastRow = useRef();
   const observerFirstRow = useRef();
   // callback run when last row is visible
@@ -74,8 +76,12 @@ export default function EnhancedTable() {
       if (observerLastRow.current) observerLastRow.current.disconnect();
       observerLastRow.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMoreBelow) {
+          setLoading(true);
           setPage((prevPage) => {
             if (Number(prevPage) === 0) {
+              if (!first) {
+                setFirst(true);
+              }
               return prevPage + 3;
             } else {
               return prevPage + 1;
@@ -85,24 +91,38 @@ export default function EnhancedTable() {
       });
       if (node) observerLastRow.current.observe(node);
     },
-    [hasMoreBelow]
+    [hasMoreBelow, first]
   );
 
   // callback run when first row is visible
-  const firstRow = useCallback((node) => {
-    if (observerFirstRow.current) observerFirstRow.current.disconnect();
-    observerFirstRow.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setPage((prevPage) => {
-          if (prevPage - 3 < 0) {
-            return 0;
-          }
-          return prevPage - 3;
-        });
-      }
-    });
-    if (node) observerFirstRow.current.observe(node);
-  }, []);
+  const firstRow = useCallback(
+    (node) => {
+      if (observerFirstRow.current) observerFirstRow.current.disconnect();
+      observerFirstRow.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setLoading(true);
+          setPage((prevPage) => {
+            if (first) {
+              setFirst(false);
+              if (prevPage - 3 < 0) {
+                return 0;
+              } else {
+                return prevPage - 3;
+              }
+            } else {
+              if (prevPage - 1 < 0) {
+                return 0;
+              } else {
+                return prevPage - 1;
+              }
+            }
+          });
+        }
+      });
+      if (node) observerFirstRow.current.observe(node);
+    },
+    [first]
+  );
 
   const handleSelected = () => {
     setSelected([]);
@@ -141,12 +161,14 @@ export default function EnhancedTable() {
     event.stopPropagation();
     rows.map((row) => (row.menu = false));
     row.menu = true;
+
     setSelected([]);
   };
   // open action menu
   const closeHandle = (event, row) => {
     event.stopPropagation();
     row.menu = false;
+
     setSelected([]);
   };
   // on click delete on row delete the row
@@ -165,8 +187,9 @@ export default function EnhancedTable() {
   // on click edit open popup with form to edit
   const editHandle = (event, row) => {
     event.stopPropagation();
+
     setEditableRow(row);
-    // togglePopup(row);
+
     setOpen(true);
   };
   // on click duplicate create another row in the database and show on table
@@ -176,7 +199,11 @@ export default function EnhancedTable() {
     axios
       .put(`http://localhost:4000/duplicateRow/${row._id}`, {})
       .then((response) => {
-        const arr = [...rows.slice(0, index + 1), response.data, ...rows.slice(index + 1)];
+        const arr = [
+          ...rows.slice(0, index + 1),
+          response.data,
+          ...rows.slice(index + 1),
+        ];
         setRows(arr);
       })
       .catch((error) => {
@@ -207,13 +234,17 @@ export default function EnhancedTable() {
             if (Number(page) === 0) {
               newRows = response.data;
             } else {
-              newRows = response.data.concat(prevRows.slice(0, prevRows.length - 15));
+              newRows = response.data.concat(
+                prevRows.slice(0, prevRows.length - numberOfRows)
+              );
             }
             return newRows;
           });
         } else {
           setRows((prevRows) => {
-            let newRows = prevRows.slice(numberOfRows, prevRows.length).concat(response.data);
+            let newRows = prevRows
+              .slice(numberOfRows, prevRows.length)
+              .concat(response.data);
             return newRows;
           });
         }
@@ -230,7 +261,11 @@ export default function EnhancedTable() {
 
   return (
     <div className={classes.root}>
-      {open ? <EditDialog open={open} editRow={editableRow} closePopup={closePopup} /> : ""}
+      {open ? (
+        <EditDialog open={open} editRow={editableRow} closePopup={closePopup} />
+      ) : (
+        ""
+      )}
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
@@ -265,28 +300,48 @@ export default function EnhancedTable() {
                     key={row._id}
                     selected={isItemSelected}
                     ref={
-                      rows.length === index + 1
+                      rows.length === index + 1 && !loading
                         ? lastRow
-                        : Number(index) === 20 && Number(page) !== 0
+                        : Number(index) === 10 && Number(page) !== 0 && !loading
                         ? firstRow
                         : undefined
                     }
                   >
+                    {/* {rows.length === index + 1 && !loading
+                      ? console.log(row.PromotionName)
+                      : Number(index) === 10 && Number(page) !== 0 && !loading
+                      ? console.log(row.PromotionName)
+                      : undefined} */}
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isItemSelected}
                         inputProps={{ "aria-labelledby": labelId }}
                       />
                     </TableCell>
-                    <TableCell component="th" id={labelId} scope="row" padding="none">
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      padding="none"
+                    >
                       {row.PromotionName}
                     </TableCell>
                     <TableCell align="right">{row.Type}</TableCell>
                     <TableCell align="right">
-                      {new Date(row.StartDate).toJSON().slice(0, 10).split("-").reverse().join("/")}
+                      {new Date(row.StartDate)
+                        .toJSON()
+                        .slice(0, 10)
+                        .split("-")
+                        .reverse()
+                        .join("/")}
                     </TableCell>
                     <TableCell align="right">
-                      {new Date(row.EndDate).toJSON().slice(0, 10).split("-").reverse().join("/")}
+                      {new Date(row.EndDate)
+                        .toJSON()
+                        .slice(0, 10)
+                        .split("-")
+                        .reverse()
+                        .join("/")}
                     </TableCell>
                     <TableCell align="right">{row.UserGroupName}</TableCell>
                     <TableCell align="right">

@@ -8,18 +8,21 @@ const Rows = mongoose.model("promotion", PromotionSchema);
 export const addNewRows = (req, res) => {
   fs.readFile("./json/rows.json", "utf8", function (err, data) {
     if (err) throw err;
-    var json = JSON.parse(data);
+    const json = JSON.parse(data);
     const insertLength = req.params.numberOfRows ? req.params.numberOfRows : 1;
+    let arr = [];
     for (let i = 0; i < insertLength; i++) {
-      json.PromotionName = "Sale" + (i + 1);
-      let newRows = new Rows(json);
-      newRows.save((err, Rows) => {
-        if (err) {
-          res.send(err);
-        }
-      });
+      let j = { ...json };
+      j.PromotionName = "Sale" + (i + 1);
+      arr.push(j);
     }
-    res.json({ message: `uploaded ${insertLength} rows` });
+    Rows.insertMany(arr)
+      .then(function (docs) {
+        res.json({ message: `uploaded ${insertLength} rows` });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
   });
 };
 

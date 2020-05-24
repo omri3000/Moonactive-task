@@ -23,17 +23,17 @@ import EditDialog from "./editDialog";
 // makeStyles from material-UI
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
+    width: "100%"
   },
   paper: {
     width: "100%",
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   },
   table: {
-    minWidth: 750,
+    minWidth: 750
   },
   container: {
-    maxHeight: "70vh",
+    maxHeight: "70vh"
   },
   visuallyHidden: {
     border: 0,
@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
     padding: 0,
     position: "absolute",
     top: 20,
-    width: 1,
-  },
+    width: 1
+  }
 }));
 
 export default function EnhancedTable() {
@@ -199,11 +199,7 @@ export default function EnhancedTable() {
     axios
       .put(`http://localhost:4000/duplicateRow/${row._id}`, {})
       .then((response) => {
-        const arr = [
-          ...rows.slice(0, index + 1),
-          response.data,
-          ...rows.slice(index + 1),
-        ];
+        const arr = [...rows.slice(0, index + 1), response.data, ...rows.slice(index + 1)];
         setRows(arr);
       })
       .catch((error) => {
@@ -213,6 +209,13 @@ export default function EnhancedTable() {
   // show/hide popup
   const closePopup = () => {
     setOpen(false);
+  };
+
+  const handleLoadingF = () => {
+    setLoading(false);
+  };
+  const handleLoadingT = () => {
+    setLoading(true);
   };
 
   // any change on the page call for more rows from the DB max row on DOM 90
@@ -234,17 +237,13 @@ export default function EnhancedTable() {
             if (Number(page) === 0) {
               newRows = response.data;
             } else {
-              newRows = response.data.concat(
-                prevRows.slice(0, prevRows.length - numberOfRows)
-              );
+              newRows = response.data.concat(prevRows.slice(0, prevRows.length - numberOfRows));
             }
             return newRows;
           });
         } else {
           setRows((prevRows) => {
-            let newRows = prevRows
-              .slice(numberOfRows, prevRows.length)
-              .concat(response.data);
+            let newRows = prevRows.slice(numberOfRows, prevRows.length).concat(response.data);
             return newRows;
           });
         }
@@ -261,20 +260,18 @@ export default function EnhancedTable() {
 
   return (
     <div className={classes.root}>
-      {open ? (
-        <EditDialog open={open} editRow={editableRow} closePopup={closePopup} />
-      ) : (
-        ""
-      )}
+      {open ? <EditDialog open={open} editRow={editableRow} closePopup={closePopup} /> : ""}
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           selected={selected}
           selectedFun={handleSelected}
+          loadingF={handleLoadingF}
+          loadingT={handleLoadingT}
         />
         <TableContainer className={classes.container}>
           <Table
-            className={`${classes.table} ${loading ? "stop-scrolling" : ""}`}
+            className={`${classes.table}`}
             aria-labelledby="tableTitle"
             size={"small"}
             aria-label="enhanced table"
@@ -318,30 +315,15 @@ export default function EnhancedTable() {
                         inputProps={{ "aria-labelledby": labelId }}
                       />
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
+                    <TableCell component="th" id={labelId} scope="row" padding="none">
                       {row.PromotionName}
                     </TableCell>
                     <TableCell align="right">{row.Type}</TableCell>
                     <TableCell align="right">
-                      {new Date(row.StartDate)
-                        .toJSON()
-                        .slice(0, 10)
-                        .split("-")
-                        .reverse()
-                        .join("/")}
+                      {new Date(row.StartDate).toJSON().slice(0, 10).split("-").reverse().join("/")}
                     </TableCell>
                     <TableCell align="right">
-                      {new Date(row.EndDate)
-                        .toJSON()
-                        .slice(0, 10)
-                        .split("-")
-                        .reverse()
-                        .join("/")}
+                      {new Date(row.EndDate).toJSON().slice(0, 10).split("-").reverse().join("/")}
                     </TableCell>
                     <TableCell align="right">{row.UserGroupName}</TableCell>
                     <TableCell align="right">

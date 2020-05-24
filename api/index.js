@@ -12,11 +12,16 @@ app.use(cors());
 
 //mongo connection
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://localhost/promotionDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false
-});
+mongoose
+  .connect(
+    "mongodb+srv://admin:yOmzIAuw01NvBdrp@mooncluster1-puv1r.mongodb.net/promotionDB?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false
+    }
+  )
+  .catch((e) => console.log(e));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));

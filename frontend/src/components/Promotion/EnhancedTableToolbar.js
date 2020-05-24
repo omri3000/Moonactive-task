@@ -32,7 +32,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected, selected, selectedFun } = props;
+  const { numSelected, selected, selectedFun, loadingT, loadingF } = props;
 
   const deleteMultipleHandle = (event, row) => {
     axios
@@ -55,7 +55,7 @@ const EnhancedTableToolbar = (props) => {
         [classes.highlight]: numSelected > 0
       })}
     >
-      <CreateButton></CreateButton>
+      <CreateButton loadingT={loadingT} loadingF={loadingF}></CreateButton>
 
       {numSelected > 0 ? (
         <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
